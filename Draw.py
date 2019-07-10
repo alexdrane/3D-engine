@@ -5,10 +5,30 @@ from math import *
 import pygame
 from pygame import *
 import sys
+from trig import *
 
 
 WIDTH = 1800
 HEIGHT = 1000
+
+def rotationMatrix(B,A,C):
+  return [
+    [fcos(C)*fcos(B)-fsin(C)*fsin(A)*fsin(B),-fsin(C)*fcos(A),fcos(C)*fsin(B)+fsin(C)*fsin(A)*fsin(B)],
+    [fsin(C)*fcos(B)+fcos(C)*fsin(A)*fsin(B),fcos(C)*fcos(A),fsin(C)*fsin(B)-fcos(C)*fsin(A)*fcos(B)],
+    [-fcos(A)*fsin(B),fsin(A),fcos(A)*fcos(B)]
+    ]
+
+def rotate(x,y,z,vector):
+  rM = rotationMatrix(x,y,z)
+  newVec = vec(
+    rM[0][0]*vector.x+rM[0][1]*vector.y+rM[0][2]*vector.z,
+    rM[1][0]*vector.x+rM[1][1]*vector.y+rM[1][2]*vector.z,
+    rM[2][0]*vector.x+rM[2][1]*vector.y+rM[2][2]*vector.z
+    )
+
+  return newVec
+
+
 
 def findif(v1,v2,xyz):
   if xyz == "x":
@@ -28,7 +48,7 @@ class view:
     self.setScreen()
 
   def setScreen(self):
-    self.screen =  vec(self.viewpoint.x+900,self.viewpoint.y+500,self.viewpoint.z+500)
+    self.screen =  vec(self.viewpoint.x+900,self.viewpoint.y+800,self.viewpoint.z+500)
 
 class vec:
   def __init__(self,x,y,z):
@@ -39,18 +59,29 @@ class vec:
   def val(self):
     return (self.x,self.y,self.z)
 
-class shape:
+
+class construct():
   def __init__(self,vects,faces):
-    self.vects = vects
-    self.faces = faces
+    self.vects,self.faces = vects,faces
+
+class centredShape():
+  def __init__(self,centre,scale,con):
+    self.centre = centre
+    self.vects = con.vects
+    self.faces = con.faces
+    self.scale = scale
 
   def draw(self,DISPLAY):
+    posVects = []
+    for v in self.vects:
+      posVects.append(vec(self.centre.x+v.x*self.scale,self.centre.y+v.y*self.scale,self.centre.z+v.z*self.scale))
+
     for face in self.faces:
       newArr = []
       newVects = []
       pri = True
       for num in face:
-        newVects.append(self.vects[num-1])
+        newVects.append(posVects[num-1])
       for v in newVects:
         dif = findif(v,viewPt.viewpoint,"y")/findif(viewPt.screen,viewPt.viewpoint,"y")
         if dif <= 0:
@@ -60,88 +91,22 @@ class shape:
           newX = findif(v,viewPt.viewpoint,"x")/dif
           newZ = findif(v,viewPt.viewpoint,"z")/dif
           newArr.append((WIDTH/2+newX,HEIGHT/2-newZ))
-      if len(newArr) > 1 and pri:    
+      if len(newArr) > 1 and pri:
         pygame.draw.lines(DISPLAY,(255,255,255),True,newArr,4)
 
-
-class construct(shape):
-  def __init__(self,vects,faces):
-    shape.__init__(self,vects,faces)
-
-class centredShape(shape):
-  def __init__(self,centre,scale,construct):
-    newVects = []
-    for v in construct.vects:
-      newVects.append(vec(centre.x+v.x*scale,centre.y+v.y*scale,centre.z+v.z*scale))
-    shape.__init__(self,newVects,construct.faces)
-      
-class poly:
-  def __init__(self,vects):
-    self.vects = vects
-
-  def draw(self,DISPLAY):
-    newArr = []
+  def rotate(self,x,y,z):
+    c = 0
     for v in self.vects:
-      dif = findif(v,viewPt.viewpoint,"y")/findif(viewPt.screen,viewPt.viewpoint,"y")
-      if dif <= 0:
-        pass
-      else:
-        newX = findif(v,viewPt.viewpoint,"x")/dif
-        newZ = findif(v,viewPt.viewpoint,"z")/dif
-        newArr.append((900+newX,500-newZ))
-    pygame.draw.lines(DISPLAY,(255,255,255),False,newArr,3)
+      newVec = rotate(x,y,z,v)
+      self.vects[self.vects.index(v)] = newVec
+
+
       
       
 viewPt = view(vec(0,0,0))
 
-pris = shape([
 
-  vec(-300,2500,-200),
-  vec(400,2500,-200),
-  vec(400,3000,-200),
-  vec(-300,3000,-200),
-  vec(-300,2750,153),
-  vec(400,2750,153)
 
-],[
-
-  [1,2,3,4],
-  [1,2,6,5],
-  [3,4,5,6]
-  
-  ])
-
-sqr = shape([
-
-  vec(400,1500,-200),
-  vec(800,1500,-200),
-  vec(800,1900,-200),
-  vec(400,1900,-200),
-  vec(400,1500,200),
-  vec(800,1500,200),
-  vec(800,1900,200),
-  vec(400,1900,200),
-  ],
-  [
-    [1,2,3,4],
-    [5,6,7,8],
-    [1,2,6,5],
-    [3,4,8,7]
-    ])
-
-tri = shape([
-  vec(-800,1100,-200),
-  vec(-400,1100,-200),
-  vec(-400,1500,-200),
-  vec(-800,1500,-200),
-  vec(-600,1300,200)
-  ],
-  [
-  [1,2,5],
-  [2,3,5],
-  [3,4,5],
-  [4,1,5]
-    ])
 
 
 
@@ -170,60 +135,13 @@ diamondConstruct = construct([
   ])
 
 diamondList = []
-for i in range(10):
-  scale = (random()-0.5)*2.5
+for i in range(30):
+  scale = (random()-0.5)*3.5
   if scale<0:
     scale-=0.6
   else:
     scale+=0.6
-  diamondList.append(centredShape(vec(randint(-4000,4000),randint(400,4000),randint(500,1200)),scale,diamondConstruct))
-
-
-octaHedra = shape([
-
-  vec(2000,2600,-200),
-  vec(1700,2600,100),
-  vec(2000,2300,100),
-  vec(2300,2600,100),
-  vec(2000,2900,100),
-  vec(2000,2600,400)
-
-  
-  ],[
-  [2,3,4,5],
-  [1,2,3],
-  [6,3,4],
-  [1,4,5],
-  [5,2,6],
-  [1,2,5,4,6,4]
-
-   ])
-
-hexPris = shape([
-
-  vec(-900,2000,-200),
-  vec(-825,2130,-200),
-  vec(-675,2130,-200),
-  vec(-600,2000,-200),
-  vec(-675,1870,-200),
-  vec(-825,1870,-200),
-  vec(-900,2000,400),
-  vec(-825,2130,400),
-  vec(-675,2130,400),
-  vec(-600,2000,400),
-  vec(-675,1870,400),
-  vec(-825,1870,400),
-  ],[
-    [1,2,3,4,5,6],
-    [7,8,9,10,11,12],
-    [1,2,8,7],
-    [3,4,10,9],
-    [5,6,12,11]
-
-
-
-    ])
-
+  diamondList.append(centredShape(vec(randint(-4000,4000),randint(400,4000),randint(-500,1200)),scale,diamondConstruct))
 
 pygame.init()
 DISPLAY = pygame.display.set_mode((WIDTH,HEIGHT),FULLSCREEN)
@@ -264,12 +182,8 @@ while True:
 
   viewPt.move(xvel,yvel,zvel)
   for diamond in diamondList:
+    diamond.rotate(0,0,0.01)
     diamond.draw(DISPLAY)
-  octaHedra.draw(DISPLAY)
-  hexPris.draw(DISPLAY)
-  tri.draw(DISPLAY)
-  pris.draw(DISPLAY)
-  sqr.draw(DISPLAY)
   fpsClock.tick(60)
   pygame.display.update()
   
