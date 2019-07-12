@@ -1,39 +1,24 @@
 from Objects import *
 from pygame import *
 from ViewPoints import *
+from Shapes import *
 
 WIDTH,HEIGHT = 1800,1000
 
-diamondConstruct = constructor([
 
 
-  vec(0,0,100),
-  vec(-100,0,0),
-  vec(0,100,0),
-  vec(100,0,0),
-  vec(0,-100,0),
-  vec(-70,0,-30),
-  vec(0,70,-30),
-  vec(70,0,-30),
-  vec(0,-70,-30)
-  
-  ],[
-  [1,2,3],
-  [1,3,4],
-  [1,4,5],
-  [1,5,2],
-  [7,6,2,3],
-  [8,7,3,4],
-  [9,8,4,5],
-  [6,9,5,2],
-  [6,7,8,9]
-  
-
-  ])
-
-diamondList = []
-for i in range(30):
-  diamondList.append(shape(vec(randint(-10000,10000),randint(-10000,10000),randint(-10000,10000)),diamondConstruct))
+shapesList = []
+for i in range(15):
+  num = randint(1,4)
+  if num==1:
+    const = diamondConstruct
+  elif num==2:
+    const = pyramidConstruct
+  elif num==3:
+    const = squareConstruct
+  else:
+    const = plusConstruct
+  shapesList.append(shape(vec(randint(-4000,4000),randint(-4000,4000),randint(-4000,4000)),const))
 
 viewPt = viewFrame(vec(0,0,0))
 
@@ -57,9 +42,9 @@ while True:
         yvel -= 12
       if event.key == K_w:
         yvel += 12
-      if event.key == K_LCTRL:
-        zvel += 12
       if event.key == K_SPACE:
+        zvel += 12
+      if event.key == K_LCTRL:
         zvel -= 12
       if event.key == K_ESCAPE:
         pygame.quit()
@@ -73,18 +58,19 @@ while True:
         yvel += 12
       if event.key == K_w:
         yvel -= 12
-      if event.key == K_LCTRL:
-        zvel -= 12
       if event.key == K_SPACE:
+        zvel -= 12
+      if event.key == K_LCTRL:
         zvel += 12
       
 
 
 
   x,y = pygame.mouse.get_rel()
-  viewPt.rotate(0,0,x/20)
+  viewPt.rotate(0,y/20,x/20)
   viewPt.move(vec(xvel,yvel,zvel))
-  for d in diamondList:
-    d.draw(viewPt,DISPLAY,WIDTH,HEIGHT)
+  for s in shapesList:
+    s.rotate(0.5,0.4,0.2)
+    s.draw(viewPt,DISPLAY,WIDTH,HEIGHT)
   fpsClock.tick(60)
   pygame.display.update()
