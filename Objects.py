@@ -8,13 +8,19 @@ class constructor():
   def __init__(self,vects,faces):
     self.faces = faces
     self.vects = vects
+    
 
 class shape():
-  def __init__(self,centre,const):
+  def __init__(self,centre,const,col):
     self.centre = centre
     self.const =  const
     self.orient = (0,0,0)
-
+    self.rotVel = (0,0,0)#(randint(1,50)/100,randint(1,50)/100,randint(1,50)/100)
+    self.vel = vec(0,0,0)
+    self.col = col
+  def update(self):
+    self.rotate(self.rotVel[0],self.rotVel[1],self.rotVel[2])
+    self.centre = addVect(self.centre,self.vel)
   def draw(self,viewPoint,DISPLAY,WIDTH,HEIGHT):
 
     relCentre = subVect(self.centre,viewPoint.viewpoint)
@@ -33,6 +39,11 @@ class shape():
     for face in self.const.faces:
       arr = []
       draw = True
+      d1 = subVect(realVects[face[1]-1],realVects[face[0]-1])
+      d2 = subVect(realVects[face[-1]-1],realVects[face[0]-1])
+      if dotProduct(crossProduct(d2,d1),subVect(realVects[face[0]-1],viewPoint.viewpoint)) >=0:
+        draw = False
+      c = 0
       for n in face:
         vector = realVects[n-1]
         difVect = subVect(vector,viewPoint.viewpoint)
@@ -46,7 +57,9 @@ class shape():
           -difVect.z/fract+HEIGHT/2
           ])
       if draw:
-        pygame.draw.lines(DISPLAY,(255,255,255),True,arr,4)
+        pygame.draw.polygon(DISPLAY,self.col,arr)
+        pygame.draw.lines(DISPLAY,(255,255,255),True,arr,2)
+        
 
     
   def rotate(self,x,y,z):
