@@ -6,6 +6,9 @@ class vec:
     self.y = y
     self.z = z
 
+  def print(self):
+    print(self.x,self.y,self.z)
+
   def val(self):
     return (self.x,self.y,self.z)
 
@@ -23,3 +26,7 @@ def crossProduct(v1,v2):
 
 def dotProduct(v1,v2):
   return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
+
+def normalise(v):
+  mag = magnitude(v)
+  return vec(v.x/mag,v.y/mag,v.z/mag)

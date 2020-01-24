@@ -14,16 +14,19 @@ class viewFrame():
   def add(self,obj):
     self.objects.append(obj)
 
-  def draw(self,DISPLAY,WIDTH,HEIGHT):
+  def draw(self,DISPLAY,WIDTH,HEIGHT,lightSource):
     distArr = {}
     for obj in self.objects:
       new = subVect(obj.centre,self.viewpoint)
-      mag = magnitude(new)
+      rotVect = rotate(0,0,self.orient[2],new)
+      rotVect = rotate(0,self.orient[1],0,rotVect)
+
+      mag = magnitude(rotVect)
       distArr[mag] = obj
     while len(distArr) > 0:
       obj = distArr[max(distArr)]
       del distArr[max(distArr)]
-      obj.draw(self,DISPLAY,WIDTH,HEIGHT)
+      obj.draw(self,DISPLAY,WIDTH,HEIGHT,lightSource)
       self.objects[self.objects.index(obj)].update()
 
   def setScreen(self):

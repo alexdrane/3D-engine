@@ -11,9 +11,9 @@ from VecLib import vec
 
 def rotationMatrix(B,A,C):
   return [
-    [fcos(C)*fcos(B)-fsin(C)*fsin(A)*fsin(B),-fsin(C)*fcos(A),fcos(C)*fsin(B)+fsin(C)*fsin(A)*fsin(B)],
-    [fsin(C)*fcos(B)+fcos(C)*fsin(A)*fsin(B),fcos(C)*fcos(A),fsin(C)*fsin(B)-fcos(C)*fsin(A)*fcos(B)],
-    [-fcos(A)*fsin(B),fsin(A),fcos(A)*fcos(B)]
+    [fcos(C)*fcos(B)-fsin(C)*fsin(A)*fsin(B)      ,     -fsin(C)*fcos(A)    ,   fcos(C)*fsin(B)+fsin(C)*fsin(A)*fsin(B)],
+    [fsin(C)*fcos(B)+fcos(C)*fsin(A)*fsin(B)    ,       fcos(C)*fcos(A)      ,   fsin(C)*fsin(B)-fcos(C)*fsin(A)*fcos(B)],
+    [-fcos(A)*fsin(B)                           ,        fsin(A)            ,   fcos(A)*fcos(B)]
     ]
 
 def rotate(x,y,z,vector):

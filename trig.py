@@ -15,6 +15,10 @@ def fcos(x):
 def f_sin(x):
   return(math.asin(x)/(math.pi/180))
 
+def f_cos(x):
+  return(math.acos(x)/(math.pi/180))
+
+
 def findarea(a,b,C):
   return(a*b*fsin(C))/2
 
@@ -41,5 +45,5 @@ def degtosides(deg,hyp):
   x = hyp*fcos(deg)
   y = hyp*fsin(deg)
   return (y,-x)
-  
+
 #print(findang(10,10,90))
